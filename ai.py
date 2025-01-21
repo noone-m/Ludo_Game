@@ -99,7 +99,7 @@ class AI:
 
         else:  # Minimizing player's turn
             if(dice_roll == 6):
-                print ("dice roll == 6")
+                print ("dice roll == 4")
             min_eval = float('inf')
             best_move = None
             for new_board in board.get_possible_boards('Red', dice_roll):

@@ -36,9 +36,10 @@ class Board:
         for i, pos in enumerate(self.tokens[player]):
             if pos == position:
                 self.tokens[player][i] = -1
-                break
+                return True
 
     def move_token(self, player: str, token_index: int, steps: int) -> bool:
+        tokenKilled = False
         if not self.is_valid_move(player, token_index, steps):
             return False
         
@@ -50,7 +51,7 @@ class Board:
                 if self.board[start_pos] is None or self.board[start_pos] == player:
                     self.board[start_pos] = player
                     self.tokens[player][token_index] = start_pos
-                    return True
+                    return False
             return False
             
         # Moving in home run
@@ -61,7 +62,7 @@ class Board:
                 self.home_runs[player][home_run_pos] = None
                 self.home_runs[player][new_pos] = player
                 self.tokens[player][token_index] = (player, new_pos)
-                return True
+                return False
             return False
             
         # Clear current position on main track
@@ -79,20 +80,20 @@ class Board:
             if home_run_steps < 6:
                 self.home_runs[player][home_run_steps] = player
                 self.tokens[player][token_index] = (player, home_run_steps)
-                return True
+                return False
             return False
         
         # Handle capture
         if self.board[new_pos] is not None and \
-           self.board[new_pos] != player and \
-           new_pos not in self.safe_positions['main'] and \
-           new_pos != self.safe_positions[self.board[new_pos]]:
-            self.send_token_home(self.board[new_pos], new_pos)
+            self.board[new_pos] != player and \
+            new_pos not in self.safe_positions['main'] and \
+            new_pos != self.safe_positions[self.board[new_pos]]:
+            tokenKilled=self.send_token_home(self.board[new_pos], new_pos)
             
         # Update board and token position
         self.board[new_pos] = player
         self.tokens[player][token_index] = new_pos
-        return True
+        return tokenKilled
     
     def is_valid_move(self, player: str, token_index: int, steps: int) -> bool:
         current_pos = self.tokens[player][token_index]
@@ -145,8 +146,8 @@ class Board:
         moves = self.get_valid_moves(player,dice_roll)
         for move in moves:
             board = deepcopy(self)
-            board.move_token(player,move,dice_roll)
-            boards.append(board)
+            tokenKilled =board.move_token(player,move,dice_roll)
+            boards.append((board, tokenKilled))
         return boards
     
     def check_winner(self,players) -> Optional[str]:

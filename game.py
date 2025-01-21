@@ -24,20 +24,21 @@ class LudoGame:
             return False
         if player == 'Red':
             
-            best_move = AI.expectimax(self.board, dice_roll, self.depth, False, False,self.players) 
-            _,self.board= best_move
+            _ ,best_move = AI.expectimax(self.board, dice_roll, self.depth, False, False,self.players) 
+            self.board ,TokenKilled= best_move
         if player == 'Blue':
             if(playWithPlayer):
                 print(f"your valid Tokens are : {valid_moves}")
-                playerMove = self.playerPlay(validMoves=valid_moves , diceRoll=dice_roll)
-                self.board = playerMove
+                data = self.playerPlay(validMoves=valid_moves , diceRoll=dice_roll)
+                self.board =data[0]
+                TokenKilled = data[1]
 
 
                 
             else:
 
-                best_move = AI.expectimax(self.board, dice_roll, self.depth, True, False,self.players)
-                _,self.board= best_move
+                _ ,best_move= AI.expectimax(self.board, dice_roll, self.depth, True, False,self.players)
+                self.board,TokenKilled= best_move
 
         # boards = self.board.get_possible_boards(player,dice_roll)
         # print('---------------------\nposssible boards:')
@@ -49,15 +50,15 @@ class LudoGame:
         # move = AI.simple_ai(self,valid_moves,player,dice_roll)
 
         # self.board.move_token(player,move,dice_roll)
-        return True
+        return TokenKilled
 
     def playerPlay(self ,validMoves ,diceRoll):
         while(True):
             tokenNum = int(input("Enter token number To Move It : "))
             if(tokenNum in  validMoves):
                 board = deepcopy(self.board)
-                board.move_token(player='Blue', token_index=tokenNum,steps=diceRoll)
-                return board
+                data = board.move_token(player='Blue', token_index=tokenNum,steps=diceRoll)
+                return (board , data)
 
 
     def play_game(self,playWithPlayer) -> None:
@@ -67,8 +68,8 @@ class LudoGame:
                 current_player = self.players[turn % 2]
                 self.board.display_board()
                 dice_roll = self.roll_dice()
-                self.play_turn(player=current_player ,dice_roll= dice_roll,playWithPlayer=playWithPlayer)
-                if (dice_roll == 6 and playTimes<4  ) :
+                TokenKilled = self.play_turn(player=current_player ,dice_roll= dice_roll,playWithPlayer=playWithPlayer)
+                if (TokenKilled or (dice_roll == 6 and playTimes<4)  ) :
                     playTimes +=1
                 else:
                     playTimes = 0 
