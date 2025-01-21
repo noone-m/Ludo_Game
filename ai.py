@@ -1,7 +1,7 @@
 class AI:
         
 
-    def simple_ai(game,valid_moves,player,dice_roll):
+    def simple_ai(game,valid_moves,player,dice_roll, depth):
         """
         Simple AI: Prioritize moving tokens that are:
         1. In yard when rolling 6
@@ -36,7 +36,7 @@ class AI:
 
 
     @staticmethod
-    def expectimax(board, dice_roll, depth, is_maximizing_player, is_chance_node,players):
+    def expectimax(board, dice_roll, depth, is_maximizing_player, is_chance_node,players ):
         """
         Implements the Expectimax algorithm
 
@@ -98,6 +98,8 @@ class AI:
             return max_eval, best_move
 
         else:  # Minimizing player's turn
+            if(dice_roll == 6):
+                print ("dice roll == 6")
             min_eval = float('inf')
             best_move = None
             for new_board in board.get_possible_boards('Red', dice_roll):
