@@ -13,7 +13,7 @@ class Board:
         # Home positions for each player
         self.tokens = {
             'Red': [-1, -1, -1, -1],   # -1 means token is in yard
-            'Blue': [-1, -1, -1, -1]
+            'Blue': [-1,-1, -1, -1]
         }
         
         # Home run tracks (6 spaces before finishing)
@@ -23,20 +23,16 @@ class Board:
         }
         
         # Where tokens enter home run
-        self.home_run_entries = {'Red': 51, 'Blue': 25}
+        self.home_run_entries = {'Red': 50, 'Blue': 24}
         
         # Safe spots where tokens cannot be captured
-        self.safe_positions = {
-            'main': [0, 8, 13, 21, 26, 34, 39, 47],  # Star positions
-            'Red': 0,    # Starting positions are safe
-            'Blue': 26
-        }
+        self.safe_positions = [0, 8, 13, 21, 26, 34, 39, 47]  # Star positions
+
 
     def send_token_home(self, player: str, position: int) -> None:
-        for i, pos in enumerate(self.tokens[player]):
-            if pos == position:
+        for i in range (4):
+            if self.tokens[player][i] == position:
                 self.tokens[player][i] = -1
-                break
 
     def move_token(self, player: str, token_index: int, steps: int) -> bool:
         if not self.is_valid_move(player, token_index, steps):
@@ -72,8 +68,8 @@ class Board:
     
                     
         # Check if token should enter home run
-        if (player == 'Red' and current_pos <= 51 and current_pos + steps > 51) or \
-           (player == 'Blue' and current_pos <= 25 and current_pos + steps > 25):
+        if (player == 'Red' and current_pos <= self.home_run_entries['Red'] and current_pos + steps > self.home_run_entries['Red']) or \
+           (player == 'Blue' and current_pos <= self.home_run_entries['Blue'] and current_pos + steps > self.home_run_entries['Blue']):
             entry_point = self.home_run_entries[player]
             home_run_steps = (current_pos + steps - entry_point - 1) % 52
             if home_run_steps < 6:
@@ -85,10 +81,10 @@ class Board:
         # Handle capture
         if self.board[new_pos] is not None and \
            self.board[new_pos] != player and \
-           new_pos not in self.safe_positions['main'] and \
-           new_pos != self.safe_positions[self.board[new_pos]]:
-            self.send_token_home(self.board[new_pos], new_pos)
-            
+           new_pos not in self.safe_positions :
+            captured_player = self.board[new_pos]
+            self.send_token_home(captured_player, new_pos)
+                
         # Update board and token position
         self.board[new_pos] = player
         self.tokens[player][token_index] = new_pos
@@ -118,7 +114,6 @@ class Board:
         opponent_walls = self.getWall(opponent)
         for wall_pos, count in opponent_walls.items():
             if count >= 2:  # It's a wall
-                print('opponent-wall' , opponent_walls)
                 # If wall is between current position and new position
                 # and new position is NOT beyond the wall, move is invalid
                 if current_pos < wall_pos < new_pos:
@@ -163,10 +158,17 @@ class Board:
         distance_sum = 0
         player_tokens = self.tokens[player]
         for token in player_tokens:
+            distance = 0
             if isinstance(token,tuple) :
                 distance = 5 - token[1]
             else:
-                distance = self.home_run_entries[player] - token
+                if token == -1:
+                    distance = 60    
+                else:    
+                    if player == 'Red':
+                        distance = self.home_run_entries['Red'] - token
+                    elif player == 'Blue':
+                        distance = self.blue_dis_home(token)
             distance_sum += distance
         return distance_sum
 
@@ -179,7 +181,7 @@ class Board:
         for player in ['Red', 'Blue']:
             print(f"{player} tokens:", self.tokens[player])
             print(f"{player} home run:", self.home_runs[player])
-        print(self.evaluate())
+
 
     def getWall(self , player):
         """
@@ -193,3 +195,11 @@ class Board:
                 else:
                     walls[pos] = 1
         return walls
+    
+    def blue_dis_home(self,token):
+        distance = 0
+        if token >= 26:
+            distance = (51 - token) + 25
+        else:
+            distance = 24 - token
+        return distance

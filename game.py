@@ -21,17 +21,18 @@ class LudoGame:
             print(f"No valid moves for {player}")
             return False
         if player == 'Red':
-            best_move = AI.expectimax(self.board, dice_roll, 1, False, False,self.players) 
+            best_move = AI.expectiminmax(self.board, dice_roll, 2, False, False,self.players) 
         if player == 'Blue':
-            best_move = AI.expectimax(self.board, dice_roll, 1, True, False,self.players)
+            best_move = AI.expectiminmax(self.board, dice_roll, 2, True, False,self.players)
 
         boards = self.board.get_possible_boards(player,dice_roll)
-        print('---------------------\nposssible boards:')
-        for i in range(len(boards)):
-            print (f'* possible board {i + 1} :')
-            boards[i].display_board()
-        print ('------------------------')
-        _,self.board= best_move
+        eval,self.board= best_move
+        # print('---------------------\n*****************************\nposssible boards:')
+        # for i in range(len(boards)):
+        #     print (f'* possible board {i + 1} :')
+        #     boards[i].display_board()
+        # print ('------------------------\n*****************************')
+        
         # move = AI.simple_ai(self,valid_moves,player,dice_roll)
 
         # self.board.move_token(player,move,dice_roll)

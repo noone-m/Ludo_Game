@@ -36,9 +36,9 @@ class AI:
 
 
     @staticmethod
-    def expectimax(board, dice_roll, depth, is_maximizing_player, is_chance_node,players):
+    def expectiminmax(board, dice_roll, depth, is_maximizing_player, is_chance_node,players):
         """
-        Implements the Expectimax algorithm
+        Implements the expectiminmax algorithm
 
         Parameters:
         ----------
@@ -72,7 +72,7 @@ class AI:
 
         Example:
         --------
-        result, best_move = AI.expectimax(current_board, 4, 3, True, False, ['Blue', 'Red'])
+        result, best_move = AI.expectiminmax(current_board, 4, 3, True, False, ['Blue', 'Red'])
         """
         if depth == 0 or board.check_winner(players) is not None:  # Terminal condition
             return board.evaluate(), board
@@ -83,7 +83,7 @@ class AI:
             for roll in possible_dice_rolls:
                 probability = 1 / len(possible_dice_rolls)  # Uniform probability
                 for new_board in board.get_possible_boards('Blue' if is_maximizing_player else 'Red', roll):
-                    eval, _ = AI.expectimax(board, roll, depth - 1, is_maximizing_player, False,players)
+                    eval, _ = AI.expectiminmax(new_board, roll, depth , is_maximizing_player, False,players)
                     expected_value += probability * eval
             return expected_value, None
 
@@ -91,7 +91,7 @@ class AI:
             max_eval = float('-inf')
             best_move = None
             for new_board in board.get_possible_boards('Blue', dice_roll):  
-                eval, _ = AI.expectimax(board, dice_roll, depth - 1, False, True,players)
+                eval, _ = AI.expectiminmax(new_board, dice_roll, depth - 1, False, True,players)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = new_board
@@ -101,7 +101,7 @@ class AI:
             min_eval = float('inf')
             best_move = None
             for new_board in board.get_possible_boards('Red', dice_roll):
-                eval, _ = AI.expectimax(board, dice_roll, depth - 1, True, True,players)
+                eval, _ = AI.expectiminmax(new_board, dice_roll, depth - 1, True, True,players)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = new_board
